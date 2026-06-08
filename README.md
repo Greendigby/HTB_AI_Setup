@@ -1,24 +1,24 @@
-# HTB AI CTF Bootstrap
+HTB AI CTF Bootstrap
 
-A bootstrap script for quickly preparing a Parrot OS, Kali-like, or Hack The Box Pwnbox environment for AI-assisted Capture the Flag work using:
+A bootstrap script for preparing a Parrot OS, Kali-like, or Hack The Box Pwnbox environment for AI-assisted Capture the Flag work using:
 
-* OpenAI Codex CLI
-* Claude Code
-* Gemini CLI
-* Google Antigravity CLI
+- OpenAI Codex CLI
+- Claude Code
+- Gemini CLI
+- Google Antigravity CLI
 
-The setup creates a repeatable CTF workspace, installs common tooling, prepares reusable CTF skills, and provides helper commands for running agent-assisted or autonomous challenge analysis.
+The setup creates a repeatable CTF workspace, installs common tooling, prepares reusable CTF skills, and provides helper commands for challenge intake, agent launch, autonomous solving, retries, traking, and completion checks.
 
-This is intended for authorised CTFs, training labs, and Hack The Box-style challenge environments only.
+This is intended for authorised CTFs, training labs, and Hack The Box-style challenge environments.
 
 ---
 
-## What this provides
+What this provides
 
-The script creates:
+The script creates the main workspace:
 
-```text
 ~/ctf-event/
+  _index/
   AGENTS.md
   CLAUDE.md
   GEMINI.md
@@ -32,117 +32,112 @@ The script creates:
   tmp/
   wordlists/
   writeups/
-```
 
 It also creates user-level skill directories:
 
-```text
 ~/.agents/skills/
 ~/.claude/skills/
-```
 
 And helper commands:
 
-```text
 ctf-status
 ctf-venv
+ctf-intake
+ctf-start
+ctf-board
+ctf-finish
+ctf-writeup-check
 new-ctf-challenge
 sync-ctf-skills
 ctf-codex-auto
 ctf-codex-auto-exec
-ctf-writeup-check
-```
+
+The old "new-ctf-challenge" helper is still available for compatibility, but the preferred workflow is now "ctf-intake".
 
 ---
 
-## Supported AI tools
+Supported AI tools
 
-### Codex CLI
+Codex CLI
 
-Primary recommended tool for autonomous or semi-autonomous CTF analysis.
+Recommended for fast autonomous or semi-autonomous challenge solving.
 
 Use Codex when you want the agent to:
 
-* inspect a challenge directory
-* run targeted commands
-* create scripts
-* interact with a scoped CTF target
-* save the flag to `loot/flag.txt`
-* generate a high-level `writeup.md`
+- inspect a challenge directory
+- analyse provided files
+- interact with an explicitly scoped CTF target
+- create helper scripts
+- save artefacts
+- save the flag to "loot/flag.txt"
+- generate or update "writeup.md"
 
 Codex uses:
 
-```text
 AGENTS.md
 ~/.agents/skills/
 ~/ctf-event/.agents/skills/
-```
 
 In Codex, skills are selected using:
 
-```text
 $
-```
 
-not `/`.
+not "/".
 
 ---
 
-### Claude Code
+Claude Code
 
-Recommended for a skills-first workflow similar to the “Claude Code + Skills” CTF approach.
+Recommended for deeper reasoning, harder challenges, and skills-first workflows.
 
 Use Claude Code when you want:
 
-* slash-command style skills
-* strong project-context use
-* structured challenge analysis
-* repeatable methodology through `CLAUDE.md`
+- slash-command style skills
+- stronger long-form challenge reasoning
+- structured project-context use
+- careful multi-step analysis
+- good retry behaviour after another agent stalls
 
 Claude Code uses:
 
-```text
 CLAUDE.md
 ~/.claude/skills/
 ~/ctf-event/.claude/skills/
-```
 
 In Claude Code, skills are selected using slash commands, for example:
 
-```text
 /ctf-triage
 /web-ctf
 /crypto-ctf
-```
+/reverse-ctf
+/pwn-ctf
 
 ---
 
-### Gemini CLI / Antigravity
+Gemini CLI / Antigravity
 
-Useful as second-opinion agents.
+Useful as second-opinion agents or fallback solvers.
 
 Use Gemini or Antigravity when:
 
-* Codex or Claude gets stuck
-* you want alternative hypotheses
-* you want a second review of `notes.md`
-* you want another model to review scripts or writeups
+- Codex or Claude gets stuck
+- you want another model to review "notes.md"
+- you want alternative hypotheses
+- you want scripts or writeups reviewed
+- you want to retry a challenge without trusting the previous agent’s assumptions
 
 Gemini and Antigravity use:
 
-```text
 GEMINI.md
-```
 
 as project context.
 
 ---
 
-## Included CTF skills
+Included CTF skills
 
 The script pre-populates these skills for Codex and Claude:
 
-```text
 ctf-triage
 web-ctf
 crypto-ctf
@@ -152,241 +147,290 @@ forensics-ctf
 misc-ctf
 osint-ctf
 ai-jailbreak-ctf
-```
 
-### Skill coverage
+Skill coverage
 
-| Skill              | Use for                                                                     |
-| ------------------ | --------------------------------------------------------------------------- |
-| `ctf-triage`       | Initial classification, notes setup, methodology selection                  |
-| `web-ctf`          | HTTP services, APIs, auth flaws, injection, XXE, file read, SSTI, uploads   |
-| `crypto-ctf`       | Encodings, XOR, RSA, AES misuse, weak randomness, signatures, custom crypto |
-| `reverse-ctf`      | Binaries, static analysis, strings, check logic, packed files               |
-| `pwn-ctf`          | Binary exploitation, pwntools, ret2win, ROP, format strings                 |
-| `forensics-ctf`    | PCAPs, images, archives, metadata, stego, file carving                      |
-| `misc-ctf`         | Raw TCP services, puzzles, restricted shells, custom protocols              |
-| `osint-ctf`        | Public clues, metadata, geolocation, usernames, timestamps                  |
-| `ai-jailbreak-ctf` | Prompt-injection / AI-jailbreak style CTF challenges                        |
+Skill| Use for
+"ctf-triage"| Initial classification, notes setup, methodology selection
+"web-ctf"| HTTP services, APIs, auth flaws, injection, XXE, file read, SSTI, uploads
+"crypto-ctf"| Encodings, XOR, RSA, AES misuse, weak randomness, signatures, custom crypto
+"reverse-ctf"| Binaries, static analysis, strings, check logic, packed files
+"pwn-ctf"| Binary exploitation, pwntools, ret2win, ROP, format strings
+"forensics-ctf"| PCAPs, images, archives, metadata, stego, file carving
+"misc-ctf"| Raw TCP services, puzzles, restricted shells, custom protocols
+"osint-ctf"| Public clues, metadata, geolocation, usernames, timestamps
+"ai-jailbreak-ctf"| Prompt-injection / AI-jailbreak style CTF challenges
 
 Each skill instructs the agent to:
 
-* stay inside the authorised challenge scope
-* keep notes in `notes.md`
-* create scripts under `scripts/`
-* save artefacts under `loot/` or `scans/`
-* save the flag to `loot/flag.txt`
-* create or update `writeup.md` when complete
+- stay inside the explicitly provided challenge scope
+- keep notes in "notes.md"
+- create scripts under "scripts/"
+- save artefacts under "loot/" or "scans/"
+- save the flag to "loot/flag.txt"
+- create or update "writeup.md" when complete
 
 ---
 
-## Prerequisites
+Prerequisites
 
 Recommended environment:
 
-```text
 Parrot OS, Kali, or HTB Pwnbox
 8 GB RAM preferred
 20 GB+ free disk preferred
 Internet access for agent login and package installation
-```
 
 For a local VMware test VM, use:
 
-```text
 Disk: 60 GB
 RAM: 8 GB
 CPU: 4 cores
 Network: NAT
-```
 
 Before running with apt installation enabled, check:
 
-```bash
 df -h /
 findmnt /
-```
 
-Do not run `--with-apt` if `/` is mounted as `overlay`, because that usually means you are in a live ISO environment with limited temporary storage.
+Do not run "--with-apt" if "/" is mounted as "overlay", because that usually means you are in a live ISO environment with limited temporary storage.
 
 ---
 
-## Installation
+Installation
 
 Clone your repository:
 
-```bash
 git clone <your-repo-url>
 cd <your-repo-name>
 chmod +x setup-htb-ai-ctf.sh
-```
 
-### Full install on an installed VM
+Full install on an installed VM
 
 Use this on an installed Parrot/Kali VM with enough disk space:
 
-```bash
 ./setup-htb-ai-ctf.sh --with-apt
 source ~/.bashrc
 ctf-status
-```
 
-### Lightweight install on HTB Pwnbox
+Lightweight install on HTB Pwnbox
 
 Use this if Pwnbox already has most tools installed or disk space is limited:
 
-```bash
 ./setup-htb-ai-ctf.sh
 source ~/.bashrc
 ctf-status
-```
 
-### Verify installation
+Verify installation
 
 Run:
 
-```bash
 ctf-status
-```
 
 Expected output should show at least:
 
-```text
 codex:  found
 claude: found
 python3: found
 jq: found
 npm: found
 tmux: found
-```
 
 Gemini and Antigravity are useful but optional.
 
 ---
 
-## First-time agent login
+First-time agent login
 
 Run each tool once and sign in when prompted.
 
-### Codex
+Codex
 
-```bash
 codex
-```
 
-Sign in with your ChatGPT account.
+Sign in with your ChatGPT account, then exit.
 
-Exit when complete.
+Claude Code
 
-### Claude Code
-
-```bash
 claude
-```
 
-Sign in with your Claude account.
+Sign in with your Claude account, then exit.
 
-Exit when complete.
+Gemini CLI
 
-### Gemini CLI
-
-```bash
 gemini
-```
 
-Sign in with your Google/Gemini account.
+Sign in with your Google/Gemini account, then exit.
 
-Exit when complete.
+Antigravity
 
-### Antigravity
-
-```bash
 agy
-```
 
-Sign in with your Google/Gemini account.
-
-Exit when complete.
+Sign in with your Google/Gemini account, then exit.
 
 ---
 
-## Recommended workflow
+Recommended workflow
 
-### 1. Create a challenge folder
+The intended live workflow is:
 
-Example:
+1. Open the challenge in Hack The Box.
+2. Copy the challenge name, category, difficulty, description, target, and file links.
+3. Use your ChatGPT Project to generate the ctf-intake command and agent prompts.
+4. Paste the generated ctf-intake command into Pwnbox.
+5. Start the chosen agent with ctf-start.
+6. If one agent fails, retry with another agent using the same challenge workspace.
+7. Track challenges with ctf-board.
+8. Finish with ctf-finish.
 
-```bash
-new-ctf-challenge web jailbreak 154.57.164.79:31790
-cd ~/ctf-event/challenges/web/jailbreak
-```
-
-This creates:
-
-```text
-notes.md
-AGENTS.md
-CLAUDE.md
-GEMINI.md
-writeup.md
-run_codex_auto_prompt.txt
-files/
-scripts/
-loot/
-scans/
-tmp/
-```
-
-### 2. Add challenge details
-
-Edit:
-
-```bash
-nano notes.md
-```
-
-Paste in:
-
-```text
-Challenge name
-Category
-Description
-Target URL / IP / port
-Hints
-Flag location, if provided
-Any downloaded files
-Rules or constraints
-```
-
-### 3. Choose an agent
-
-Use:
-
-```text
-Codex       for autonomous PoC solving
-Claude Code for skills-first interactive solving
-Gemini      for second opinions
-Antigravity for Google-side agent workflow
-```
+The ChatGPT Project is used only as a prompt-pack generator. The actual challenge solving is done locally by Codex, Claude, Gemini, or Antigravity inside the Pwnbox/VM workspace.
 
 ---
 
-## Using Codex interactively
+Challenge workspace structure
+
+Each challenge created by "ctf-intake" has this structure:
+
+~/ctf-event/challenges/<category>/<challenge-slug>/
+  challenge.yaml
+  original_prompt.md
+  notes.md
+  AGENTS.md
+  CLAUDE.md
+  GEMINI.md
+  writeup.md
+  run_codex_auto_prompt.txt
+
+  files/
+    extracted/
+
+  scripts/
+  loot/
+  scans/
+  tmp/
+
+  prompts/
+    codex_auto.txt
+    codex_interactive.txt
+    claude_solve.txt
+    gemini_solve.txt
+    gemini_review.txt
+    retry_fresh.txt
+    retry_handoff.txt
+
+  agent_runs/
+    codex/
+    claude/
+    gemini/
+    agy/
+
+Key files
+
+File| Purpose
+"challenge.yaml"| Central metadata: name, category, difficulty, target, file URLs, status
+"original_prompt.md"| Original HTB challenge details exactly as supplied
+"notes.md"| Shared working notes used by all agents
+"AGENTS.md"| Local Codex instructions
+"CLAUDE.md"| Local Claude Code instructions
+"GEMINI.md"| Local Gemini / Antigravity instructions
+"writeup.md"| Final high-level learning writeup
+"prompts/"| Agent-specific prompt files
+"agent_runs/"| Per-agent run folders for retries and tracking
+"loot/flag.txt"| Final flag location
+
+---
+
+Creating a challenge with "ctf-intake"
+
+The preferred way to create a challenge is "ctf-intake".
+
+Basic example
+
+ctf-intake \
+  --category web \
+  --difficulty easy \
+  --name "Jailbreak" \
+  --target "154.57.164.79:31790" <<'EOF'
+Paste the Hack The Box challenge description here.
+EOF
+
+Example with scenario file
+
+ctf-intake \
+  --category misc \
+  --difficulty medium \
+  --name "TunnelMadness" \
+  --target "154.57.164.74:31353" \
+  --url 'https://ctf.hackthebox.com/challenges/example/download?...' <<'EOF'
+Paste the Hack The Box challenge description here.
+EOF
+
+"ctf-intake" will:
+
+- create the challenge folder
+- save the original challenge details
+- create "challenge.yaml"
+- create shared agent context files
+- create prompt files for Codex, Claude, Gemini, and retries
+- download scenario files if URLs are provided
+- extract common archive formats where possible
+- generate an initial file inventory
+
+After intake:
+
+cd ~/ctf-event/challenges/<category>/<challenge-slug>
+
+---
+
+Starting agents with "ctf-start"
+
+The preferred way to launch agents is "ctf-start".
+
+From inside a challenge folder:
+
+ctf-start codex
+ctf-start codex-auto
+ctf-start codex-exec
+ctf-start claude
+ctf-start gemini
+ctf-start gemini-review
+ctf-start agy
+ctf-start agy-review
+
+You can also start an agent from anywhere by passing the challenge reference:
+
+ctf-start codex-auto web/jailbreak
+ctf-start claude pwn/hard-binary
+ctf-start gemini-review misc/tunnelmadness
+
+"ctf-start" will:
+
+- resolve the challenge folder
+- create a timestamped run directory under "agent_runs/<agent>/"
+- copy the relevant prompt into that run directory
+- show the prompt where needed
+- start the requested agent
+
+---
+
+Codex workflows
+
+Codex interactive mode
 
 From a challenge directory:
 
-```bash
-codex
-```
+ctf-start codex
 
-Press:
+This starts Codex interactively and prints the prepared prompt from:
 
-```text
+prompts/codex_interactive.txt
+
+Inside Codex, press:
+
 $
-```
 
-Select a skill such as:
+to select a skill such as:
 
-```text
 ctf-triage
 web-ctf
 crypto-ctf
@@ -395,56 +439,37 @@ pwn-ctf
 forensics-ctf
 misc-ctf
 ai-jailbreak-ctf
-```
 
-Then prompt Codex:
-
-```text
-Use the selected CTF skill.
-
-This is an authorised CTF challenge.
-
-Read notes.md and AGENTS.md.
-Analyse the challenge and attempt to locate the flag within the provided scope.
-
-Save scripts under scripts/.
-Save artefacts under loot/ or scans/.
-Save the flag to loot/flag.txt if found.
-Create or update writeup.md when solved.
-
-Do not attack anything outside the provided scope.
-Do not run denial-of-service, flooding, destructive commands, persistence, evasion, or credential theft.
-Do not submit the flag automatically.
-```
-
----
-
-## Using Codex autonomous PoC mode
+Codex autonomous mode
 
 From a challenge directory:
 
-```bash
-ctf-codex-auto
-```
+ctf-start codex-auto
 
-This launches Codex using the prepared `run_codex_auto_prompt.txt`.
+or:
+
+ctf-codex-auto
+
+This launches Codex using the prepared autonomous prompt from:
+
+prompts/codex_auto.txt
 
 It uses:
 
-```text
 --sandbox danger-full-access
 --ask-for-approval never
-```
 
-Use this only inside an isolated VM and only against authorised CTF/lab targets.
+Use this mode only inside the isolated CTF VM/Pwnbox and only for the explicitly provided challenge scope.
 
-### Non-interactive autonomous mode
+Codex non-interactive exec mode
 
 From a challenge directory:
 
-```bash
+ctf-start codex-exec
+
+or:
+
 ctf-codex-auto-exec
-```
 
 This runs Codex as a one-shot non-interactive job.
 
@@ -452,163 +477,177 @@ Use this when you want a cleaner PoC run and do not need to interact with the ag
 
 ---
 
-## Using Claude Code
+Claude Code workflow
 
 From a challenge directory:
 
-```bash
-claude
-```
+ctf-start claude
 
-Use a skill:
+This starts Claude Code and prints the prepared prompt from:
 
-```text
+prompts/claude_solve.txt
+
+Claude can use slash skills such as:
+
 /ctf-triage
-```
-
-or:
-
-```text
 /web-ctf
-```
-
-Example prompt:
-
-```text
-/ctf-triage
-
-This is an authorised CTF challenge.
-
-Read notes.md and CLAUDE.md.
-Analyse the challenge and create a solve plan.
-
-If the flag is found:
-- save it to loot/flag.txt
-- create or update writeup.md
-- save any useful scripts under scripts/
-
-Do not attack anything outside the provided scope.
-Do not run denial-of-service, flooding, destructive commands, persistence, evasion, or credential theft.
-Do not submit the flag automatically.
-```
-
-For web:
-
-```text
-/web-ctf
-
-This is an authorised CTF web challenge.
-
-Read notes.md and CLAUDE.md.
-Identify the web attack surface.
-Inspect routes, forms, JavaScript, cookies, headers, and likely API endpoints.
-Test only within the provided scope.
-
-If the flag is found, save it to loot/flag.txt and create writeup.md.
-```
-
-For crypto:
-
-```text
 /crypto-ctf
+/reverse-ctf
+/pwn-ctf
+/forensics-ctf
+/misc-ctf
+/ai-jailbreak-ctf
 
-This is an authorised CTF crypto challenge.
+Claude is recommended for:
 
-Read notes.md and any files in files/.
-Identify the likely crypto class.
-Create repeatable solve scripts under scripts/.
-Save the flag to loot/flag.txt if found.
-Create writeup.md when solved.
-```
+hard or very hard challenges
+reverse engineering
+pwn
+complex crypto
+multi-step reasoning
+fallback after Codex stalls
 
 ---
 
-## Using Gemini CLI
+Gemini workflow
 
 From a challenge directory:
 
-```bash
-gemini
-```
+ctf-start gemini
 
-Prompt:
+This starts Gemini and prints the prompt from:
 
-```text
-Use GEMINI.md as project context.
+prompts/gemini_solve.txt
 
-This is an authorised CTF challenge.
+Gemini is useful for:
 
-Review notes.md, scripts/, loot/, and writeup.md.
-Suggest alternative hypotheses and next steps.
-Do not run active network commands unless explicitly authorised.
-Do not attack anything outside the provided challenge scope.
-```
+second opinion
+reviewing failed Codex or Claude attempts
+checking assumptions
+alternative hypotheses
+script review
+writeup review
 
-Gemini is useful when:
+For review mode:
 
-```text
-- Codex or Claude gets stuck
-- you want a second opinion
-- you want a challenge writeup reviewed
-- you want alternative hypotheses
-```
+ctf-start gemini-review
+
+This uses:
+
+prompts/gemini_review.txt
 
 ---
 
-## Using Antigravity
+Antigravity workflow
 
 From a challenge directory:
 
-```bash
-agy
-```
+ctf-start agy
 
-Prompt:
+For review mode:
 
-```text
-Use GEMINI.md as project context.
+ctf-start agy-review
 
-This is an authorised CTF challenge.
-
-Review the current challenge directory.
-Summarise the current state.
-Suggest the next likely solve paths.
-Do not run destructive or out-of-scope actions.
-```
+Antigravity uses the Gemini-style prompts and "GEMINI.md" context.
 
 ---
 
-## Completion requirements
+Retry workflows
+
+If one agent fails, use the same challenge workspace and retry with another agent.
+
+Fresh retry
+
+Use this when you want the new agent to start from the original challenge information and verify everything independently.
+
+ctf-start claude-retry-fresh
+ctf-start gemini-retry-fresh
+ctf-start codex-retry-fresh
+
+The fresh retry prompt is stored at:
+
+prompts/retry_fresh.txt
+
+Handoff retry
+
+Use this when the previous agent made useful progress and the next agent should continue from existing evidence.
+
+ctf-start claude-retry-handoff
+ctf-start gemini-retry-handoff
+ctf-start codex-retry-handoff
+
+The handoff prompt is stored at:
+
+prompts/retry_handoff.txt
+
+The retry prompts instruct agents to read:
+
+challenge.yaml
+original_prompt.md
+notes.md
+writeup.md
+scripts/
+loot/
+scans/
+agent_runs/
+
+---
+
+Tracking active challenges
+
+Use:
+
+ctf-board
+
+This scans challenge folders and shows a central board with:
+
+Challenge
+Category
+Difficulty
+Target
+Status
+Flag
+Writeup
+Path
+
+Example:
+
+Challenge                    Category     Difficulty Target                   Status     Flag   Writeup  Path
+---------                    --------     ---------- ------                   ------     ----   -------  ----
+Jailbreak                    web          easy       154.57.164.79:31790     solved     yes    done     web/jailbreak
+TunnelMadness                misc         medium     154.57.164.74:31353     created    no     draft    misc/tunnelmadness
+
+This is useful when running multiple terminal sessions for different challenges.
+
+---
+
+Completion requirements
 
 Every solved challenge should end with:
 
-```text
 loot/flag.txt
 writeup.md
 notes.md
 scripts/solve.py or equivalent, where practical
-```
 
 Check completion with:
 
-```bash
+ctf-finish
+
+or the compatibility wrapper:
+
 ctf-writeup-check
-```
 
-Expected output:
+If "loot/flag.txt" exists and "writeup.md" has no "Pending" markers, "ctf-finish" updates "challenge.yaml" to:
 
-```text
-[+] Flag file exists
-[+] writeup.md exists
-```
+status: "solved"
 
 ---
 
-## Writeup format
+Writeup format
 
-Each challenge writeup should use this structure:
+Each challenge writeup uses this structure:
 
-```markdown
 # Challenge Writeup: <name>
 
 ## Summary
@@ -629,7 +668,7 @@ Important routes, files, functions, endpoints, artefacts, or behaviours.
 
 ## Exploitation / Solve Path
 
-The successful route to the flag, with only necessary commands or scripts.
+The successful route to the flag, with necessary commands or scripts.
 
 ## Flag Location
 
@@ -642,390 +681,408 @@ What the agent tried, what worked, and what was avoided.
 ## Remediation / Learning Point
 
 What would prevent this issue in a real system, where applicable.
-```
 
-The goal is a high-level learning writeup, not just a transcript.
+The goal is a high-level learning writeup, not just a raw terminal transcript.
 
 ---
 
-## Example: web challenge
+Example: Codex autonomous challenge
 
 Create the challenge:
 
-```bash
-new-ctf-challenge web jailbreak 154.57.164.79:31790
+ctf-intake \
+  --category web \
+  --difficulty easy \
+  --name "Jailbreak" \
+  --target "154.57.164.79:31790" <<'EOF'
+Paste Hack The Box challenge description here.
+EOF
+
+Start Codex:
+
 cd ~/ctf-event/challenges/web/jailbreak
-nano notes.md
-```
-
-Add the challenge description and target.
-
-Run autonomous Codex:
-
-```bash
-ctf-codex-auto
-```
+ctf-start codex-auto
 
 After completion:
 
-```bash
-ctf-writeup-check
+ctf-finish
 cat loot/flag.txt
 sed -n '1,220p' writeup.md
-```
 
 ---
 
-## Example: Claude-led workflow
+Example: Claude-led challenge
 
-```bash
-new-ctf-challenge web challenge-name 1.2.3.4:12345
-cd ~/ctf-event/challenges/web/challenge-name
-nano notes.md
-claude
-```
+Create the challenge:
 
-Prompt:
+ctf-intake \
+  --category pwn \
+  --difficulty hard \
+  --name "Hard Binary" \
+  --target "154.57.164.80:31000" \
+  --url 'https://ctf.hackthebox.com/challenges/example/download?...' <<'EOF'
+Paste Hack The Box challenge description here.
+EOF
 
-```text
-/web-ctf
+Start Claude:
 
-This is an authorised CTF web challenge.
-Read notes.md and CLAUDE.md.
-Carry out a scoped analysis of the target.
-Save scripts under scripts/.
-Save the flag to loot/flag.txt if found.
-Create writeup.md when solved.
-```
+cd ~/ctf-event/challenges/pwn/hard-binary
+ctf-start claude
 
----
+If Claude gets stuck and you want Gemini to review:
 
-## Example: Codex interactive workflow
-
-```bash
-new-ctf-challenge misc challenge-name 1.2.3.4:12345
-cd ~/ctf-event/challenges/misc/challenge-name
-codex
-```
-
-Inside Codex:
-
-1. Press `$`.
-2. Select `misc-ctf`.
-3. Paste:
-
-```text
-This is an authorised CTF challenge.
-Read notes.md and AGENTS.md.
-Analyse the service and attempt to locate the flag within the provided scope.
-Save scripts under scripts/.
-Save artefacts under loot/.
-Save the flag to loot/flag.txt if found.
-Create writeup.md when solved.
-Do not submit the flag automatically.
-```
+ctf-start gemini-review
 
 ---
 
-## Recommended model usage
+Example: Gemini fallback after Codex
 
-For Codex:
+If Codex has attempted the challenge but did not solve it:
 
-```text
-Default: use the current model.
-If available, use a stronger model for harder challenges.
-Use smaller/faster models for simple scripting and note cleanup.
-```
+cd ~/ctf-event/challenges/misc/tunnelmadness
+ctf-start gemini-retry-handoff
 
-Suggested approach:
+If you want Gemini to restart independently:
 
-```text
-Initial triage: standard model
-Complex reverse/pwn/crypto: stronger model
-Writeup cleanup: smaller/faster model is usually fine
-```
+ctf-start gemini-retry-fresh
 
 ---
 
-## Safety and scope
+Recommended agent usage
 
-This setup is for authorised CTFs and lab environments only.
+Codex
 
-Do not use it against:
+Use Codex first for:
 
-```text
-- public systems without permission
-- corporate systems outside approved scope
-- other CTF participants
-- unrelated HTB infrastructure
-- real user accounts
-- real credentials
-```
+easy/medium challenges
+web challenges
+misc challenges
+scripting-heavy challenges
+API or HTTP interaction
+file parsing
+automation
+quick PoC solving
 
-Agents must not perform:
+Claude Code
 
-```text
-- denial-of-service
-- flooding
-- destructive commands
-- persistence
-- evasion
-- credential theft
-- attacks outside the provided scope
-```
+Use Claude first for:
 
-Autonomous mode is intentionally powerful. Use it only inside isolated VMs and only for explicit challenge targets.
+hard/very hard challenges
+reverse engineering
+pwn
+complex crypto
+multi-step logic
+source code reasoning
+where careful planning matters
+
+Gemini
+
+Use Gemini for:
+
+second opinion
+reviewing failed Codex or Claude attempts
+finding bad assumptions
+summarising notes
+alternative hypotheses
+checking scripts and writeups
+fallback when another agent stalls
+
+Antigravity
+
+Use Antigravity for:
+
+alternative Google-side agent workflow
+broader project-context review
+another fallback path
 
 ---
 
-## Pwnbox notes
+ChatGPT Project integration
+
+The recommended event workflow uses a separate ChatGPT Project as a prompt-pack generator.
+
+That project should not solve the challenge itself. It should only generate:
+
+ctf-intake command
+Codex prompt
+Claude Code prompt
+Gemini / Antigravity prompt
+fresh retry prompt
+handoff retry prompt
+quick commands
+
+Then paste the generated "ctf-intake" command into Pwnbox.
+
+The local agents then perform the challenge work inside the generated challenge folder.
+
+---
+
+Scope and authorisation
+
+This setup is for authorised CTF, lab, and training environments.
+
+Generated prompts and agent guidance use this scope model:
+
+This is authorised Hack The Box / CTF work.
+
+Work only inside the current challenge workspace.
+
+Only operate against the explicitly provided challenge scope, including the supplied target, files, URLs, ports, and challenge artefacts.
+
+Use any challenge-relevant technique where it is appropriate to the provided HTB/CTF scenario and consistent with the event rules.
+
+Keep notes, scripts, artefacts, flags, and writeups inside the challenge folder.
+
+Autonomous mode is intentionally powerful. Use it only inside an isolated VM/Pwnbox and only for explicit challenge targets.
+
+---
+
+Pwnbox notes
 
 HTB Pwnbox may be temporary. Do not assume files or login sessions will persist.
 
 Recommended Pwnbox flow:
 
-```bash
 git clone <your-repo-url>
 cd <your-repo-name>
 chmod +x setup-htb-ai-ctf.sh
 ./setup-htb-ai-ctf.sh
 source ~/.bashrc
 ctf-status
-```
 
 Then sign in:
 
-```bash
 codex
 claude
 gemini
 agy
-```
 
 At the end of a session, export or copy:
 
-```text
+challenge.yaml
+original_prompt.md
 notes.md
 writeup.md
 loot/flag.txt
 scripts/
-```
+agent_runs/
 
 ---
 
-## VMware rehearsal notes
+VMware rehearsal notes
 
 For a local Parrot VMware rehearsal VM:
 
-```text
 Disk: 60 GB
 RAM: 8 GB
 CPU: 4 cores
 Network: NAT
-```
 
 After install, verify:
 
-```bash
 whoami
 findmnt /
 df -h /
-```
 
-You want `/` mounted from `/dev/sda...`, not `overlay`.
+You want "/" mounted from "/dev/sda...", not "overlay".
 
 Then run:
 
-```bash
 ./setup-htb-ai-ctf.sh --with-apt
 source ~/.bashrc
 ctf-status
-```
 
 Take a snapshot after the setup is complete and before starting any event work.
 
 ---
 
-## Troubleshooting
+Troubleshooting
 
-### `No space left on device`
+"No space left on device"
 
 Check:
 
-```bash
 df -h /
 findmnt /
-```
 
-If `/` is `overlay`, you are likely in a live ISO session. Install the VM to disk before running `--with-apt`.
+If "/" is "overlay", you are likely in a live ISO session. Install the VM to disk before running "--with-apt".
 
-### Codex does not show local skills
+---
+
+Codex does not show local skills
 
 Run:
 
-```bash
 sync-ctf-skills
-```
 
 Restart Codex and press:
 
-```text
 $
-```
 
 You should see skills such as:
 
-```text
 ctf-triage
 web-ctf
 crypto-ctf
-```
 
-### `/skills` does not work in Codex
+---
+
+"/skills" does not work in Codex
 
 Use:
 
-```text
 $
-```
 
-Codex uses `$` for skill selection in this setup.
+Codex uses "$" for skill selection in this setup.
 
-### Claude does not show skills
+---
+
+Claude does not show skills
 
 Run:
 
-```bash
 sync-ctf-skills
-```
 
 Restart Claude:
 
-```bash
 claude
-```
 
 Then try:
 
-```text
 /ctf-triage
-```
 
-### Gemini or Antigravity is missing
+---
+
+Gemini or Antigravity is missing
 
 They are secondary tools. Check:
 
-```bash
 ctf-status
-```
 
 If Codex and Claude are installed, the setup is usable.
 
-### Agent solved the challenge but did not write the writeup
+---
 
-Run the agent again from the challenge directory and prompt:
+Agent solved the challenge but did not write the writeup
 
-```text
-Read notes.md, scripts/, and loot/flag.txt.
+Run the relevant agent again from the challenge directory and prompt it to update the writeup:
+
+Read challenge.yaml, original_prompt.md, notes.md, scripts/, and loot/flag.txt.
 Create or update writeup.md using the required writeup structure.
 Make it high-level and suitable for learning.
-```
 
-### Agent found a flag but did not save it
+---
+
+Agent found a flag but did not save it
 
 Run:
 
-```bash
 mkdir -p loot
 nano loot/flag.txt
-```
 
-Paste the flag manually, then ask the agent to update `writeup.md`.
+Paste the flag manually, then ask the agent to update "writeup.md".
 
 ---
 
-## Useful commands
+"ctf-start" cannot find a challenge
+
+Check your challenge path:
+
+find ~/ctf-event/challenges -name challenge.yaml -type f
+
+Then start with a relative challenge reference:
+
+ctf-start codex-auto web/jailbreak
+
+Or move into the challenge folder and start without a reference:
+
+cd ~/ctf-event/challenges/web/jailbreak
+ctf-start codex-auto
+
+---
+
+Useful commands
 
 Status:
 
-```bash
 ctf-status
-```
 
 Create challenge:
 
-```bash
+ctf-intake --category web --difficulty easy --name "Name" --target "1.2.3.4:1234"
+
+Legacy create command:
+
 new-ctf-challenge web name target
-```
 
-Start Codex:
+Start Codex interactive:
 
-```bash
-codex
-```
+ctf-start codex
 
-Start autonomous Codex PoC:
+Start Codex autonomous:
 
-```bash
-ctf-codex-auto
-```
+ctf-start codex-auto
 
-Start non-interactive Codex PoC:
+Start Codex non-interactive:
 
-```bash
-ctf-codex-auto-exec
-```
+ctf-start codex-exec
 
 Start Claude:
 
-```bash
-claude
-```
+ctf-start claude
 
 Start Gemini:
 
-```bash
-gemini
-```
+ctf-start gemini
+
+Start Gemini review:
+
+ctf-start gemini-review
 
 Start Antigravity:
 
-```bash
-agy
-```
+ctf-start agy
+
+Fresh retry:
+
+ctf-start claude-retry-fresh
+ctf-start gemini-retry-fresh
+ctf-start codex-retry-fresh
+
+Handoff retry:
+
+ctf-start claude-retry-handoff
+ctf-start gemini-retry-handoff
+ctf-start codex-retry-handoff
+
+Challenge board:
+
+ctf-board
 
 Activate Python venv:
 
-```bash
 ctf-venv
-```
 
-Check final files:
+Check completion:
 
-```bash
-ctf-writeup-check
-```
+ctf-finish
 
 Sync skills:
 
-```bash
 sync-ctf-skills
-```
 
 ---
 
-## Suggested repository structure
+Suggested repository structure
 
-```text
 htb-ai-ctf-bootstrap/
   setup-htb-ai-ctf.sh
   README.md
-```
 
-Keep the repository small. The script generates the workspace, agent instructions, skills, challenge templates, and helper commands.
+Keep the repository small. The script generates the workspace, agent instructions, skills, challenge templates, prompt files, and helper commands.
 
 ---
 
-## Disclaimer
+Disclaimer
 
-This project is for authorised CTF, lab, and training environments only. The autonomous mode is designed for isolated challenge targets and should not be used against systems without explicit permission.
+This project is for authorised CTF, lab, and training environments only. Autonomous mode is designed for isolated challenge targets and should not be used against systems without explicit permission.
